@@ -61,13 +61,13 @@ SYSTEM_CFILES =								\
 	ionull.c	kill.c		kprintf.c	main.c		\
 	mkbufpool.c	newqueue.c	open.c		pci.c		\
 	putc.c		queue.c		read.c		ready.c		\
-	resched.c	deadlock.c	lock.c \
+	resched.c	RAG.c	lock.c \
 	resume.c	sched_cntl.c 	seek.c		semcount.c	\
 	semcreate.c	semdelete.c	semreset.c	\
 	signal.c	signaln.c	suspend.c	\
 	userret.c	wait.c		\
 	write.c		xdone.c		yield.c		evec.c
-
+#removed deadlock.c from system_cfiles
 #SYSTEM_CFILES =								\
 #	ascdate.c	bufinit.c		panic.c		\
 #	clkinit.c	close.c		conf.c		control.c	\
