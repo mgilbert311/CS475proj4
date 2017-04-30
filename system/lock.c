@@ -162,8 +162,7 @@ syscall	release(lid32 lockid)
 	}
 
 	//Remove current process' ID from the lock's queue
-	//TODO: Is this really the current proc? How do we know the current proc is at the head of the queue?
-	pid32 currProc = dequeue(lptr -> wait_queue);
+	pid32 currProc = remove(currpid, lptr -> wait_queue);
 
 	//Unlock the mutex
 	lptr -> lock = FALSE;
