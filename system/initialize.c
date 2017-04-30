@@ -177,13 +177,13 @@ static	void	sysinit(void)
 	}
 
 
-	struct lockentry *lockptr;
+	struct lockentry *lptr;
 	/* Initialize all lockentry's in locktab */
 	for(i = 0; i < NLOCK; i++){
-		lockptr = &locktab[i];
-		lockptr -> state = LOCK_FREE; /* initialize locks to be free */
-		lockptr -> lock = FALSE; /* lock is initially false */
-		lockptr -> wait_queue = newqueue(); /* wait_queue points to a new empty queue */ 
+		lptr = &locktab[i];
+		lptr->state = LOCK_FREE;
+		lptr->lock = FALSE; 
+		lptr->wait_queue = newqueue();
 	}
 
 	/* Initialize buffer pools */

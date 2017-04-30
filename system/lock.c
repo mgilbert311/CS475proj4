@@ -29,36 +29,29 @@ lid32	lock_create()
  */
 local	lid32	newlock(void)
 {
-	static	lid32	nextlock = 0;	/* next lockid to try	*/
 	lid32	lockid;			/* ID to return	*/
 	int32	i;			/* iterate through # entries	*/
-	struct lockentry *locks; /* pointer to lock entry table*/
-	struct lockentry *ltab = locktab;
-	// locks = locktab;
+	struct lockentry *lockptr;
+	
+	//Loop through each element in the lock table.
+	for(i = 0; i < NLOCK; i++){
+		lockptr = &locktab[i];
 
-	//TODO START
-	// int32 n = sizeof(locktab)
-	//TODO - loop through each element in the lock table.
-	for(i = 0; i < sizeof(ltab); i++){
-		locks = &locktab[i];
-	//TODO - and find a lock that is free to use
+		//Find a free lock
+		if(lockptr->state == LOCK_FREE){
 
-		if(locks -> state == LOCK_FREE){
+			//Set lock state to used
+			lockptr->state = LOCK_USED;
+			//Reset the lock mutex to FALSE
+			lockptr->lock = FALSE;
 
-	//TODO - set its state to used, and reset the mutex to FALSE
-			locks -> state = LOCK_USED;
-			locks -> lock = FALSE;
-			lockid = (int32)&locks[i];
-			
-	//TODO - return its lockid
+			lockid = i;
 			return lockid;
 		}
 	}
 
-	//TODO - if there is no such lock, return SYSERR
+	//If there is no such lock, return SYSERR
 	return SYSERR; /* no lock found */
-
-	//TODO END
 }
 
 
@@ -83,21 +76,20 @@ syscall	lock_delete(lid32 lockid)
 		return SYSERR;
 	}
 
-	//TODO START
-
-	//TODO - reset lock's state to free and the mutex to FALSE
+	//Reset lock's state to free
 	lptr -> state = LOCK_FREE;
+	//Reset the lock's mutex to FALSE
 	lptr -> lock = FALSE;
-	//TODO - remove all processes waiting on its queue, and send them to the ready queue
+
+	//Remove all processes waiting on its queue, and send them to the ready queue
 	pid32 tempProc;
 	while(!isempty(lptr->wait_queue)){
 		tempProc = dequeue(lptr->wait_queue);
 		enqueue(tempProc, readyqueue, lockid);
 	
 	//TODO (RAG) - remove all RAG edges to and from this lock
-		rag_dealloc(tempProc, lockid); 
+		// rag_dealloc(tempProc, lockid); 
 	}
-	//TODO END
 
 	resched();
 	restore(mask);
@@ -127,28 +119,22 @@ syscall	acquire(lid32 lockid)
 		return SYSERR;
 	}
 
-	//TODO START
-	//TODO - enqueue the current process ID on the lock's wait queue
-	pid32 currProc = dequeue(readyqueue);
-	enqueue(currProc, lptr->wait_queue, lockid);
+	//Enqueue the current process ID on the lock's wait queue
+	// pid32 currProc = dequeue(readyqueue); @hkurtis what does this line do?
+	enqueue(currpid, lptr->wait_queue, lockid);
+
 	//TODO (RAG) - add a request edge in the RAG
-	rag_request(currProc, lockid);
-	//TODO END
+	// rag_request(currProc, lockid);
 
 	restore(mask);				//reenable interrupts
 
-	//TODO START
-	
-	//TODO - lock the mutex!
+	//Lock the mutex!
 	lptr -> lock = TRUE;
-	//TODO END
 
 	mask = disable();			//disable interrupts
 
-	//TODO START
 	//TODO (RAG) - we reache this point. Must've gotten the lock! Transform request edge to allocation edge
-	rag_alloc(currProc, lockid);
-	//TODO END
+	// rag_alloc(currProc, lockid);
 
 	restore(mask);				//reenable interrupts
 	return OK;
@@ -175,15 +161,15 @@ syscall	release(lid32 lockid)
 		return SYSERR;
 	}
 
-	//TODO START
-	//TODO - remove current process' ID from the lock's queue
+	//Remove current process' ID from the lock's queue
+	//TODO: Is this really the current proc? How do we know the current proc is at the head of the queue?
 	pid32 currProc = dequeue(lptr -> wait_queue);
 
-	//TODO - unlock the mutex
+	//Unlock the mutex
 	lptr -> lock = FALSE;
+
 	//TODO (RAG) - remove allocation edge from RAG
-	rag_dealloc(currProc, lockid);
-	//TODO END
+	// rag_dealloc(currProc, lockid);
 
 	restore(mask);
 	return OK;
