@@ -33,12 +33,13 @@ local	lid32	newlock(void)
 	lid32	lockid;			/* ID to return	*/
 	int32	i;			/* iterate through # entries	*/
 	struct lockentry *locks; /* pointer to lock entry table*/
+	struct lockentry *ltab = locktab;
 	// locks = locktab;
 
 	//TODO START
-
+	// int32 n = sizeof(locktab)
 	//TODO - loop through each element in the lock table.
-	for(i = 0; i < NLOCK; i++){
+	for(i = 0; i < sizeof(ltab); i++){
 		locks = &locktab[i];
 	//TODO - and find a lock that is free to use
 
@@ -47,7 +48,7 @@ local	lid32	newlock(void)
 	//TODO - set its state to used, and reset the mutex to FALSE
 			locks -> state = LOCK_USED;
 			locks -> lock = FALSE;
-			lockid = &locks[i];
+			lockid = (int32)&locks[i];
 			
 	//TODO - return its lockid
 			return lockid;
