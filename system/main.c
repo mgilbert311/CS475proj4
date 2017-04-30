@@ -1,6 +1,6 @@
 /*  main.c  - main */
 #include <xinu.h>
-#define N 5 //number of philosophers and forks, should be arbitary
+#define N 3 //number of philosophers and forks, should be arbitary
 #define RAND_MAX 100
 //Forks are initialized to 0 (open)
 //mutex_t forks[N] = {};
