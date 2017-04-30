@@ -140,7 +140,6 @@ syscall	acquire(lid32 lockid)
 	rag_alloc(currpid, lockid);
 
 	restore(mask);				//reenable interrupts
-	kprintf("A%d ACQUIRED A%d\n", currpid, lockid);
 	return OK;
 }
 
@@ -165,7 +164,6 @@ syscall	release(lid32 lockid)
 		return SYSERR;
 	}
 
-	kprintf("R%d RELEASING R%d\n",currpid, lockid);
 
 	//Remove current process' ID from the lock's queue
 	remove(currpid, lptr -> wait_queue);

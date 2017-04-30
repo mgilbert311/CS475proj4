@@ -10,9 +10,11 @@ void	resched(void)		// assumes interrupts are disabled
 {
 
 	//Run deadlock detection
-	static runDetection = 0;
+	static int runDetection = 0;
 	if(runDetection % 50 == 0){
+		intmask mask = disable();
 		deadlock_detect();
+		restore(mask);
 	}
 	runDetection++;
 

@@ -10,6 +10,7 @@
 int parent[SIZE]; //Array for nodes involved, indices are important
 int color[SIZE]; //Array for which color a node is 
 int count = 0; //for backtracking
+int dllockid; //the id of a lock involved in deadlock
 
 /*
  * Adds a request edge from pid to lockid
@@ -42,17 +43,17 @@ void rag_dealloc(int pid, int lockid){
 void rag_print(){
 	int i, j;
 	for(i=0; i<SIZE;i++){
-		if(i <10) printf("l%d", i);
-		else printf("p%d", i-10);
+		if(i <10) kprintf("l%d", i);
+		else kprintf("p%d", i-10);
 	}
-	printf("\n");
+	kprintf("\n");
 	for(i=0; i< SIZE; i++){
-		if(i<10) printf("l%d   ", i);
-		else printf("p%d   ", i-10);
+		if(i<10) kprintf("l%d   ", i);
+		else kprintf("p%d   ", i-10);
 		for(j=0; j<SIZE; j++){
-			printf("%d", RAG[i][j]);
+			kprintf("%d", RAG[i][j]);
 		}
-		printf("\n"); //New line after each row
+		kprintf("\n"); //New line after each row
 	}
 
 }
@@ -70,7 +71,7 @@ int translateIndex(int v){
 
 //DFS
 void deadlock_detect(void){
-	//printf("In detect\n");
+	//kprintf("In detect\n");
 	//node parent[SIZE]; //Can max visit all nodes?
 	int i;
 	//Initialize all to be unvisited
@@ -104,6 +105,7 @@ int deadlock_helper(int index){
 				//Found a cycle/deadlock stop
 				parent[j] = index; //Add the last node to the parent
 				print_parent(j);
+                deadlock_recover();
 
 			}
 		}
@@ -115,7 +117,7 @@ int deadlock_helper(int index){
 
 void print_parent(int index){
 	int i; //If count ==1 then we can stop
-	printf("DEADLOCK    ");
+	kprintf("DEADLOCK    ");
 	i = index; //original index
 
 	while(count < 1){ //Seen it twice
@@ -123,16 +125,46 @@ void print_parent(int index){
 		i = parent[i];
 		//Print out the associated handle
 		if(i < 10){ //print out a lockid
-			printf("lockid=%d     ", i);
+			kprintf("lockid=%d     ", i);
+            dllockid = i;
 		}else{
-			printf("pid=%d     ", i-10);
+			kprintf("pid=%d     ", i-10);
 		}
 
 		if(i == index){
 			count++; //Break out if we have seen ourselves again
 		} 
 	}
-	printf("\n");
+	kprintf("\n");
+}
 
+void deadlock_recover(){
 
+    int i, dlpid;
+    for(i=NLOCK; i<NPROC; i++){
+        if(RAG[dllockid][i] == 1){
+            dlpid = i - NLOCK;
+        }
+    }
+    
+    //Kill the process involved in the deadlock
+    kill(dlpid);
+
+    //Remove the terminated process from any lock wait-queues it may be in
+    struct lockentry *lptr;
+    for(i=0; i<NLOCK;i++){
+        lptr = &locktab[i];
+        remove(dlpid, lptr->wait_queue);
+    }
+
+    //Unlock the lock's mutex
+    mutex_unlock(&locktab[dllockid].lock);
+
+    //Zero out the terminated procs entrires in the RAG
+    for(i=0;i<SIZE; i++){
+        RAG[dlpid+NLOCK][i] = 0; //Zero out the row for dlpid proc
+        RAG[i][dlpid+NLOCK] = 0; //Zero out the column for dlpid proc
+    }
+
+    kprintf("DEADLOCK RECOVER   killing pid=%d to free lid=%d\n", dlpid, dllockid);
 }
