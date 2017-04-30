@@ -8,6 +8,7 @@ local	lid32	newlock(void);
  */
 lid32	lock_create()
 {
+
 	intmask	mask;		/* saved interrupt mask	*/
 	lid32	lockid;		/* lock ID to return	*/
 
@@ -113,7 +114,6 @@ syscall	acquire(lid32 lockid)
 		return SYSERR;
 	}
 
-	kprintf("acquire() lockid: %d\n", lockid);
 	lptr = &locktab[lockid];
 	if (lptr->state == LOCK_FREE) {
 		restore(mask);
@@ -121,7 +121,6 @@ syscall	acquire(lid32 lockid)
 	}
 
 	//Enqueue the current process ID on the lock's wait queue
-	// pid32 currProc = dequeue(readyqueue); @hkurtis what does this line do?
 	enqueue(currpid, lptr->wait_queue, lockid);
 
 	//TODO (RAG) - add a request edge in the RAG
@@ -130,7 +129,7 @@ syscall	acquire(lid32 lockid)
 	restore(mask);				//reenable interrupts
 
 	//Lock the mutex!
-	lptr -> lock = TRUE;
+	mutex_lock(&(lptr->lock));
 
 	mask = disable();			//disable interrupts
 
@@ -138,6 +137,7 @@ syscall	acquire(lid32 lockid)
 	// rag_alloc(currProc, lockid);
 
 	restore(mask);				//reenable interrupts
+	kprintf("A%d ACQUIRED A%d\n", currpid, lockid);
 	return OK;
 }
 
@@ -162,15 +162,18 @@ syscall	release(lid32 lockid)
 		return SYSERR;
 	}
 
+	kprintf("R%d RELEASING R%d\n",currpid, lockid);
+
 	//Remove current process' ID from the lock's queue
 	pid32 currProc = remove(currpid, lptr -> wait_queue);
 
 	//Unlock the mutex
-	lptr -> lock = FALSE;
+	mutex_unlock(&lptr->lock);
 
 	//TODO (RAG) - remove allocation edge from RAG
 	// rag_dealloc(currProc, lockid);
 
 	restore(mask);
+
 	return OK;
 }
