@@ -113,6 +113,7 @@ syscall	acquire(lid32 lockid)
 		return SYSERR;
 	}
 
+	kprintf("acquire() lockid: %d\n", lockid);
 	lptr = &locktab[lockid];
 	if (lptr->state == LOCK_FREE) {
 		restore(mask);

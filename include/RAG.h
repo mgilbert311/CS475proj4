@@ -1,6 +1,4 @@
 //Base 0 so 1 less
-//#define NLOCK 9
-//#define NPROC 19
 #define NLOCK 10
 #define NPROC 20
 #define SIZE NLOCK + NPROC
