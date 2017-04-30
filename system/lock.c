@@ -87,10 +87,13 @@ syscall	lock_delete(lid32 lockid)
 	while(!isempty(lptr->wait_queue)){
 		tempProc = dequeue(lptr->wait_queue);
 		enqueue(tempProc, readyqueue, lockid);
-	
-	//TODO (RAG) - remove all RAG edges to and from this lock
-		// rag_dealloc(tempProc, lockid); 
+
+		// TODO (RAG) - remove all RAG edges to and from this lock
+		rag_dealloc(tempProc, lockid); 
+
 	}
+
+	
 
 	resched();
 	restore(mask);
@@ -124,7 +127,7 @@ syscall	acquire(lid32 lockid)
 	enqueue(currpid, lptr->wait_queue, lockid);
 
 	//TODO (RAG) - add a request edge in the RAG
-	// rag_request(currProc, lockid);
+	rag_request(currpid, lockid);
 
 	restore(mask);				//reenable interrupts
 
@@ -134,7 +137,7 @@ syscall	acquire(lid32 lockid)
 	mask = disable();			//disable interrupts
 
 	//TODO (RAG) - we reache this point. Must've gotten the lock! Transform request edge to allocation edge
-	// rag_alloc(currProc, lockid);
+	rag_alloc(currpid, lockid);
 
 	restore(mask);				//reenable interrupts
 	kprintf("A%d ACQUIRED A%d\n", currpid, lockid);
@@ -165,13 +168,13 @@ syscall	release(lid32 lockid)
 	kprintf("R%d RELEASING R%d\n",currpid, lockid);
 
 	//Remove current process' ID from the lock's queue
-	pid32 currProc = remove(currpid, lptr -> wait_queue);
+	remove(currpid, lptr -> wait_queue);
 
 	//Unlock the mutex
 	mutex_unlock(&lptr->lock);
 
 	//TODO (RAG) - remove allocation edge from RAG
-	// rag_dealloc(currProc, lockid);
+	rag_dealloc(currpid, lockid);
 
 	restore(mask);
 

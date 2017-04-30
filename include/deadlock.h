@@ -20,3 +20,4 @@ void deadlock_detect(void);
 int deadlock_helper(int index);
 void print_parent(int index);
 
+extern int RAG[SIZE][SIZE];

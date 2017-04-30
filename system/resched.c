@@ -8,6 +8,14 @@
  */
 void	resched(void)		// assumes interrupts are disabled
 {
+
+	//Run deadlock detection
+	static runDetection = 0;
+	if(runDetection % 50 == 0){
+		deadlock_detect();
+	}
+	runDetection++;
+
 	struct procent *ptold;	// ptr to table entry for old process
 	struct procent *ptnew;	// ptr to table entry for new process
 

@@ -1,7 +1,4 @@
 #include <xinu.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 /**
 * Single nstance resource allocation graph (RAG)
 * Implemented using matrix representation of the graph
@@ -10,7 +7,6 @@
 
 
 //The nodes are in order from l0-l9 and p0-p19
-int matrix[SIZE][SIZE];
 int parent[SIZE]; //Array for nodes involved, indices are important
 int color[SIZE]; //Array for which color a node is 
 int count = 0; //for backtracking
@@ -23,26 +19,26 @@ int count = 0; //for backtracking
 void rag_request(int pid, int lockid){
 	//Find the correct cell and initialize
 	int cell = translateIndex(pid);
-	matrix[cell][lockid] = 1;
+	RAG[cell][lockid] = 1;
 }
 
 
 void rag_alloc(int pid, int lockid){
-	//find the correct cell and update the matrix
+	//find the correct cell and update the RAG
 	int cell = translateIndex(pid);
-	matrix[lockid][cell] = 1;
-	matrix[cell][lockid] = 0;
+	RAG[lockid][cell] = 1;
+	RAG[cell][lockid] = 0;
 }
 
 
 void rag_dealloc(int pid, int lockid){
 	//Find the correct cell and then set its value to 0
 	int cell = translateIndex(pid);
-	matrix[lockid][cell] = 0;
+	RAG[lockid][cell] = 0;
 }
 
 
-//Print the matrix
+//Print the RAG
 void rag_print(){
 	int i, j;
 	for(i=0; i<SIZE;i++){
@@ -54,7 +50,7 @@ void rag_print(){
 		if(i<10) printf("l%d   ", i);
 		else printf("p%d   ", i-10);
 		for(j=0; j<SIZE; j++){
-			printf("%d", matrix[i][j]);
+			printf("%d", RAG[i][j]);
 		}
 		printf("\n"); //New line after each row
 	}
@@ -99,7 +95,7 @@ int deadlock_helper(int index){
 
 		for(j=0; j<SIZE; j++){
 		//Don't worry about non existant edges
-		if(matrix[index][j] == 1){
+		if(RAG[index][j] == 1){
 			//In the an adjacent node
 			if(color[j] == WHITE){
 				parent[j] = index;//Add where the node came from
