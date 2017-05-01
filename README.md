@@ -1,7 +1,8 @@
 ﻿# proj4
 Xinu Project 4 for OS 475 Evan, Mark, Hunter
 
-Test case is in main_dl.c:
+Test case is in main_dl.c, change the Makefile main.c to main_dl.c to see in action:
+
 In our test case we have 4 worker threads and 4 different locks. 
 Worker 0 requires lock 0 first, and lock 1 second. 
 Worker 1 requires lock 2 first, and lock 3 second. 

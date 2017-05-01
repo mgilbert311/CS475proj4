@@ -58,7 +58,7 @@ SYSTEM_CFILES =								\
 	getc.c		getdev.c	getmem.c		\
 	getpid.c	getstk.c	initialize.c 	\
 	i386.c		ioerr.c		\
-	ionull.c	kill.c		kprintf.c	main_dl.c		\
+	ionull.c	kill.c		kprintf.c	main.c		\
 	mkbufpool.c	newqueue.c	open.c		pci.c		\
 	putc.c		queue.c		read.c		ready.c		\
 	resched.c	deadlock.c	lock.c \
