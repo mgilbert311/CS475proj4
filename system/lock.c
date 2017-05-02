@@ -88,7 +88,7 @@ syscall	lock_delete(lid32 lockid)
 		tempProc = dequeue(lptr->wait_queue);
 		enqueue(tempProc, readyqueue, lockid);
 
-		// TODO (RAG) - remove all RAG edges to and from this lock
+		// remove all RAG edges to and from this lock
 		rag_dealloc(tempProc, lockid); 
 
 	}
@@ -126,7 +126,7 @@ syscall	acquire(lid32 lockid)
 	//Enqueue the current process ID on the lock's wait queue
 	enqueue(currpid, lptr->wait_queue, lockid);
 
-	//TODO (RAG) - add a request edge in the RAG
+	//add a request edge in the RAG
 	rag_request(currpid, lockid);
 
 	restore(mask);				//reenable interrupts
@@ -136,7 +136,7 @@ syscall	acquire(lid32 lockid)
 
 	mask = disable();			//disable interrupts
 
-	//TODO (RAG) - we reache this point. Must've gotten the lock! Transform request edge to allocation edge
+	//we reache this point. Must've gotten the lock! Transform request edge to allocation edge
 	rag_alloc(currpid, lockid);
 
 	restore(mask);				//reenable interrupts
@@ -171,7 +171,7 @@ syscall	release(lid32 lockid)
 	//Unlock the mutex
 	mutex_unlock(&lptr->lock);
 
-	//TODO (RAG) - remove allocation edge from RAG
+	//remove allocation edge from RAG
 	rag_dealloc(currpid, lockid);
 
 	restore(mask);

@@ -37,6 +37,7 @@ void	work(uint32 id)
 /**
  * Worker code
  * @param id ID of worker
+ * Deadlock should occur between processes 1 and 3 
  */
 void	worker(uint32 id)
 {
@@ -44,12 +45,12 @@ void	worker(uint32 id)
 		//acquire lock 0
 		acquire(mylock[0]);
 		kprintf("worker 0 has lock 0\n");
-		//print something
+		//work
 		work(id);
 		//acquire lock 1
 		acquire(mylock[1]);
 		kprintf("worker 0 has lock 1\n");
-		//print something
+		//work
 		work(id);
 		//release lock 1
 		kprintf("worker 0 is about to release lock 1\n");
@@ -61,12 +62,12 @@ void	worker(uint32 id)
 		//acquire lock 2
 		acquire(mylock[2]);
 		kprintf("worker 1 has lock 2\n");
-		//print something
+		//work
 		work(id);
 		//acquire lock 1
 		acquire(mylock[3]);
 		kprintf("worker 1 has lock 3\n");
-		//print something
+		//work
 		work(id);
 		//release lock 1
 		kprintf("worker 1 is about to release lock 2\n");
@@ -78,12 +79,12 @@ void	worker(uint32 id)
 		//acquire lock 2
 		acquire(mylock[0]);
 		kprintf("worker 2 has lock 0\n");
-		//print something
+		//work
 		work(id);
 		//acquire lock 1
 		acquire(mylock[1]);
 		kprintf("worker 2 has lock 1\n");
-		//print something
+		//work
 		work(id);
 		//release lock 1
 		kprintf("worker 2 is about to release lock 1\n");
@@ -95,12 +96,12 @@ void	worker(uint32 id)
 		//acquire lock 3
 		acquire(mylock[3]);
 		kprintf("worker 3 has lock 3\n");
-		//print something
+		//work
 		work(id);
 		//acquire lock 2
 		acquire(mylock[2]);
 		kprintf("worker 3 has lock 2\n");
-		//print something
+		//work
 		work(id);
 		//release lock 2
 		kprintf("worker 3 is about to release lock 2\n");
@@ -109,30 +110,11 @@ void	worker(uint32 id)
 		kprintf("worker 3 is about to release lock 3\n");
 		release(mylock[0]);
 	}
-
-	// }
-	// if (id == 0)
-	// {
-	// 	acquire(mylock[0]);
-	// 	work(id);
-	// 	acquire(mylock[1]);
-	// 	work(id);
-	// 	release(mylock[1]);
-	// 	release(mylock[0]);
-	// }
-	// else
-	// {
-	// 	acquire(mylock[1]);
-	// 	work(id);
-	// 	acquire(mylock[0]);
-	// 	work(id);
-	// 	release(mylock[0]);
-	// 	release(mylock[1]);
-	// }
 }
 
 int	main(uint32 argc, uint32 *argv)
 {
+	// this loop generates all the locks needed for the test
 	int i;
 	printer_lock = lock_create();
 	for (i=0; i<N; i++)
@@ -140,9 +122,8 @@ int	main(uint32 argc, uint32 *argv)
 
 	ready(create((void*) worker, INITSTK, 15, "Worker 0", 1, 0), FALSE);
 	ready(create((void*) worker, INITSTK, 15, "Worker 1", 1, 1), FALSE);
-	ready(create((void*) worker, INITSTK, 15, "Worker 1", 1, 2), FALSE);
-	ready(create((void*) worker, INITSTK, 15, "Worker 1", 1, 3), FALSE);
-	ready(create((void*) worker, INITSTK, 15, "Worker 1", 1, 4), FALSE);
+	ready(create((void*) worker, INITSTK, 15, "Worker 2", 1, 2), FALSE);
+	ready(create((void*) worker, INITSTK, 15, "Worker 3", 1, 3), FALSE);
 
 	return 0;
 }

@@ -1,6 +1,7 @@
 ﻿# proj4
 Xinu Project 4 for OS 475 Evan, Mark, Hunter
 
+Dining philosophers with deadlock detection is within main.c.
 Test case is in main_dl.c, change the Makefile main.c to main_dl.c to see in action:
 
 In our test case we have 4 worker threads and 4 different locks. 
@@ -36,7 +37,7 @@ Worker 2 releases lock 1.
 Worker 2 releases lock 0.
 Since Worker 3 is holding onto lock 2 and Worker 1 is holding onto lock 3, no work can be done for either process and a deadlock occurs.
 
-With deadlock detection, when Worker 3 grabs lock 3, the process is killed in order for process 1 to complete.
+With deadlock detection, when Worker 3 grabs lock 3, the process is killed in order for process 1 to complete. Following Worker 1's completion, Worker 0 completes and releases its locks, Worker 3 completes and releases its locks, and finally Worker 2 completes and releases its locks.
 
 
 
